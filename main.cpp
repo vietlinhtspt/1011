@@ -32,31 +32,32 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int
 using namespace std;
 
 //**************************************************************
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 100;
+const int SCREEN_WIDTH = 450;
+const int SCREEN_HEIGHT = 800;
 const char WINDOW_TITLE[] = "Hello";
 
 int main(int argc, char* argv[])
 {
+	
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	initSDL(window, renderer, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
 	vector<SDL_Texture *> picture;
 	// Load anh
-	picture.push_back(loadTexture("hallo/picture/menu.bmp", renderer));
+	picture.push_back(loadTexture("picture/menu.bmp", renderer));
 	//Kiem tra xem co load duoc anh hay khong	
 	int imageNum = picture.size();
 	for (int i = 0; i < imageNum; ++i) {
 		if (picture[i] == nullptr) {
 			for (int j = 0; j < imageNum; ++j) SDL_DestroyTexture(picture[j]);
 			quitSDL(window, renderer);
-			cin >> imageNum;
+			getchar();
 			return 1;
 		}
 	}
 	//Kich thuoc anh
-	int iSizeX = 640;
-	int iSizeY = 360;
+	int iSizeX = 450;
+	int iSizeY = 800;
 	//Vi tri
 	int x = 0; 
 	int y = 0;
@@ -81,6 +82,7 @@ int main(int argc, char* argv[])
 		}
 
 	}
+	getchar();
 	//Ham giai phong bo nho 
 	quitSDL(window, renderer);
 	return 0;
