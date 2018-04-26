@@ -13,9 +13,6 @@ void quitSDL(SDL_Window* window, SDL_Renderer* renderer);
 
 void waitUntilKeyPressed();
 
-// Hai hàm về texture, lấy nguyên về từ tutorial tại:
-// http://www.willusher.io/sdl2%20tutorials/2013/08/17/lesson-2-dont-put-everything-in-main
-
 // Hàm nạp texture từ file ảnh, để vẽ lên renderer tương ứng
 SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren);
 
@@ -38,7 +35,6 @@ const char WINDOW_TITLE[] = "Hello";
 
 int main(int argc, char* argv[])
 {
-	
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	initSDL(window, renderer, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
@@ -59,33 +55,47 @@ int main(int argc, char* argv[])
 	int iSizeX = 450;
 	int iSizeY = 800;
 	//Vi tri
-	int x = 0; 
+	int x = 0;
 	int y = 0;
 	//Su kien chinh
 	SDL_Event mainEven;
 	//Bien kiem tra chuong trinh
 	bool isRunning = true;
+	//Vong lap chay chuong trinh
 	while (isRunning)
 	{
 		SDL_RenderClear(renderer);
+		//Ve man hinh chinh
 		renderTexture(picture[0], renderer, x, y, iSizeX, iSizeY);
+		//Dua hinh da ve ve man hinh chinh
 		SDL_RenderPresent(renderer);
 		while (SDL_WaitEvent(&mainEven)) {
 			// Nếu sự kiện là kết thúc (như đóng cửa sổ) thì thoát khỏi vòng lặp
-			if (mainEven.type == SDL_QUIT) isRunning = false;
-
-			// Nếu có một phím được nhấn, thì xét phím đó là gì để xử lý tiếp
-			if (mainEven.type == SDL_KEYDOWN) {
-				// Nếu nhấn phìm ESC thì thoát khỏi vòng lặp
-				if (mainEven.key.keysym.sym == SDLK_ESCAPE) isRunning = false;
+			switch (SDL_WaitEvent(&mainEven)) {
+			case SDL_QUIT: {
+				isRunning = false;
+				break;
+			}
+			case SDL_MOUSEMOTION: {
+				cout << "Current Position Mouse: (" << mainEven.motion.x << "," << mainEven.motion.y << ")\n";
+				break;
+			}
+			default:
+				cout << "default";
+				break;
 			}
 		}
-
 	}
-	getchar();
-	//Ham giai phong bo nho 
+	//Ham giai phong bo nho luu cac anh
+	for (int i = 0; i < imageNum; i++) {
+		SDL_DestroyTexture(picture[i]);
+	}
+	//Ham giai phong bo nho
 	quitSDL(window, renderer);
 	return 0;
+
+	system("pause");
+	return 1;
 }
 //*****************************************************
 // Các hàm chung về khởi tạo và huỷ SDL
