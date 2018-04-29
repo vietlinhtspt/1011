@@ -30,14 +30,20 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int
 void playGame(SDL_Renderer* renderer);
 //Ham ve nen game
 void displayBackground(SDL_Renderer* renderer);
+//Ham ve hinh trai
+void displayLeft(SDL_Renderer* renderer, int left, int dentaX, int dentaY);
+//Ham ve hinh giua
+void displayMid(SDL_Renderer* renderer, int left, int dentaX, int dentaY);
+//Ham ve hinh phai
+void displayRight(SDL_Renderer* renderer, int left, int dentaX, int dentaY);
 //Ham ve ban co tro choi
 void displayMatrixColor(SDL_Renderer* renderer, int color[10][10]);
 //Ham ve hinh vuong 4 o
-void hinhVuong4(SDL_Renderer* renderer, int dentaX, int dentaY, int x, int y);
+void hinhVuong4(SDL_Renderer* renderer, int x, int y);
 //Ham ve thanh 4 o doc
-void doc4(SDL_Renderer* renderer, int dentaX, int dentaY, int x, int y);
+void doc4(SDL_Renderer* renderer, int x, int y);
 //Ham ve thanh 4 o ngang
-void ngang4(SDL_Renderer* renderer, int dentaX, int dentaY, int x, int y);
+void ngang4(SDL_Renderer* renderer, int x, int y);
 
 //**************************************************************
 const int SCREEN_WIDTH = 360;
@@ -257,8 +263,24 @@ void playGame(SDL_Renderer* renderer)
 	//Chay game
 	bool isRunning = true;
 	while (isRunning) {
-		/*srand(time(NULL));
-		int a = rand() % 50 + 1;*/
+		//Random cac hinh
+		srand(time(NULL));
+		int left = rand() % 3 + 1;
+		srand(time(NULL));
+		int mid = rand() % 3 + 1;
+		srand(time(NULL));
+		int right = rand() % 3 + 1;
+		//Hien thi hinh trai
+		displayLeft(renderer, left, 0, 0);
+		//Hien thi hinh giua
+		displayMid(renderer, left, 0, 0);
+		//Hien thi hinh phai
+		displayRight(renderer, left, 0, 0);
+		//Nguoi choi chua di chuyen vat the
+		int isObject = 0;
+		//Toa do cu cua chuot
+		int x;
+		int y;
 		while (SDL_WaitEvent(&playEvent)) {
 			// Nếu sự kiện là kết thúc (như đóng cửa sổ) thì thoát khỏi vòng lặp
 			switch (playEvent.type) {
@@ -268,15 +290,68 @@ void playGame(SDL_Renderer* renderer)
 					break;
 				}
 				case SDL_MOUSEMOTION: {
-					cout << playEvent.motion.x << " , " << playEvent.motion.y << "\n";
+					if (isObject == 1) {
+						displayBackground(renderer);
+						displayMatrixColor(renderer, color);
+						//Hien thi hinh trai
+						displayLeft(renderer, left, playEvent.motion.x - x, playEvent.motion.y - y);
+						//Hien thi hinh giua
+						displayMid(renderer, left, 0, 0);
+						//Hien thi hinh phai
+						displayRight(renderer, left, 0, 0);
+					}
+					else if (isObject == 2) {
+						displayBackground(renderer);
+						displayMatrixColor(renderer, color);
+						//Hien thi hinh trai
+						displayLeft(renderer, left, 0, 0);
+						//Hien thi hinh giua
+						displayMid(renderer, mid, playEvent.motion.x - x, playEvent.motion.y - y);
+						//Hien thi hinh phai
+						displayRight(renderer, left, 0, 0);
+
+					}
+					else if (isObject == 3) {
+						displayBackground(renderer);
+						displayMatrixColor(renderer, color);
+						//Hien thi hinh trai
+						displayLeft(renderer, left, 0, 0);
+						//Hien thi hinh giua
+						displayMid(renderer, left, 0, 0);
+						//Hien thi hinh phai
+						displayRight(renderer, right, playEvent.motion.x - x, playEvent.motion.y - y);
+					}
+					//cout << playEvent.motion.x << " , " << playEvent.motion.y << "\n";
 					break;
 				}
 				case SDL_MOUSEBUTTONUP:
 				{
-					if (playEvent.button.button == SDL_BUTTON_LEFT)
+					if ((playEvent.button.button == SDL_BUTTON_LEFT) && (isObject == 0))
 					{
 						if ((playEvent.motion.x >= 35) && (playEvent.motion.x <= 95) && (playEvent.motion.y >= 530) && (playEvent.motion.y <= 590)) {
+							//1 == object left
+							isObject = 1;
+							//Toa do cu cua chuot
+							x = playEvent.motion.x;
+							y = playEvent.motion.y;
 						}
+						else if ((playEvent.motion.x >= 145) && (playEvent.motion.x <= 215) && (playEvent.motion.y >= 530) && (playEvent.motion.y <= 590)) {
+							//2 == object mid
+							isObject = 2;
+							//Toa do cu cua chuot
+							x = playEvent.motion.x;
+							y = playEvent.motion.y;
+						}
+						else if ((playEvent.motion.x >= 250) && (playEvent.motion.x <= 325) && (playEvent.motion.y >= 530) && (playEvent.motion.y <= 590)) {
+							//3 == object right
+							isObject = 3;
+							//Toa do cu cua chuot
+							x = playEvent.motion.x;
+							y = playEvent.motion.y;
+						}
+					}
+					else if ((playEvent.button.button == SDL_BUTTON_LEFT) && (isObject == true)) {
+
 					}
 					break;
 				}
@@ -299,7 +374,7 @@ void displayBackground(SDL_Renderer* renderer) {
 	renderTexture(picture, renderer, x, y, iSizeX, iSizeY);
 	SDL_RenderPresent(renderer);
 }
-void displayMatrixColor(SDL_Renderer* renderer, int color[10][10]) {
+void displayMatrixColor(SDL_Renderer* renderer, int color[10][10])  {
 	//Kich thuoc anh
 	int iSizeX = 29;
 	int iSizeY = 29;
@@ -389,7 +464,52 @@ void displayMatrixColor(SDL_Renderer* renderer, int color[10][10]) {
 		}
 	}
 }
-void hinhVuong4(SDL_Renderer* renderer, int dentaX, int dentaY, int x, int y)
+void displayLeft(SDL_Renderer* renderer, int left, int dentaX, int dentaY) {
+	int x = 35;
+	int y = 500;
+	switch (left) {
+	case 1:
+		hinhVuong4(renderer, x + dentaX, y + dentaY);
+		break;
+	case 2:
+		ngang4(renderer, x + dentaX, y + dentaY);
+		break;
+	case 3:
+		doc4(renderer, x + dentaX, y + dentaY);
+		break;
+	}
+}
+void displayMid(SDL_Renderer* renderer, int left, int dentaX, int dentaY) {
+	int x = 145;
+	int y = 500;
+	switch (left) {
+	case 1:
+		hinhVuong4(renderer, x + dentaX, y + dentaY);
+		break;
+	case 2:
+		ngang4(renderer, x + dentaX, y + dentaY);
+		break;
+	case 3:
+		doc4(renderer, x + dentaX, y + dentaY);
+		break;
+	}
+}
+void displayRight(SDL_Renderer* renderer, int left, int dentaX, int dentaY) {
+	int x = 250;
+	int y = 500;
+	switch (left) {
+	case 1:
+		hinhVuong4(renderer, x + dentaX, y + dentaY);
+		break;
+	case 2:
+		ngang4(renderer, x + dentaX, y + dentaY);
+		break;
+	case 3:
+		doc4(renderer, x + dentaX, y + dentaY);
+		break;
+	}
+}
+void hinhVuong4(SDL_Renderer* renderer, int x, int y)
 {
 	//Load anh
 	SDL_Texture* picture;
@@ -400,25 +520,25 @@ void hinhVuong4(SDL_Renderer* renderer, int dentaX, int dentaY, int x, int y)
 	//vong lap ve hinh
 	for (int i = 0; i <= 1; i ++) {
 		for (int j = 0; j <= 1; j ++) {
-			renderTexture(picture, renderer, x + dentaX, y + dentaY, iSizeX + j * 30, iSizeY + i * 30);
+			renderTexture(picture, renderer, x + j * 30, y + i * 30, iSizeX, iSizeY);
 			SDL_RenderPresent(renderer);
 		}
 	}
 }
-void ngang4(SDL_Renderer* renderer, int dentaX, int dentaY, int x, int y) {
+void ngang4(SDL_Renderer* renderer, int x, int y) {
 	//Load anh
 	SDL_Texture* picture;
-	picture = loadTexture("07_picture/Red.bmp", renderer);
+	picture = loadTexture("picture/07_Red.bmp", renderer);
 	//Kich Thuoc anh
 	int iSizeX = 29;
 	int iSizeY = 29;
 	//vong lap ve hinh
 	for (int i = 0; i <= 3; i++) {
-		renderTexture(picture, renderer, x + dentaX, y + dentaY, iSizeX + i * 30, iSizeY);
+		renderTexture(picture, renderer, x + i * 30, y, iSizeX, iSizeY);
 		SDL_RenderPresent(renderer);
 	}
 }
-void doc4(SDL_Renderer* renderer, int dentaX, int dentaY, int x, int y) {
+void doc4(SDL_Renderer* renderer, int x, int y) {
 	//Load anh
 	SDL_Texture* picture;
 	picture = loadTexture("picture/04_Orange.bmp", renderer);
@@ -427,7 +547,7 @@ void doc4(SDL_Renderer* renderer, int dentaX, int dentaY, int x, int y) {
 	int iSizeY = 29;
 	//vong lap ve hinh
 	for (int i = 0; i <= 3; i++) {
-		renderTexture(picture, renderer, x + dentaX, y + dentaY, iSizeX, iSizeY + i * 30);
+		renderTexture(picture, renderer, x, y + i * 30, iSizeX, iSizeY);
 		SDL_RenderPresent(renderer);
 	}
 }
