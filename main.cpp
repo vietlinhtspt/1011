@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <string>
 #include <ctime>
+#include <cstdlib>
 using namespace std;
 void logSDLError(std::ostream& os, const std::string &msg, bool fatal = false);
 
@@ -38,6 +39,8 @@ void displayMid(SDL_Renderer* renderer, int left, int dentaX, int dentaY);
 void displayRight(SDL_Renderer* renderer, int left, int dentaX, int dentaY);
 //Ham ve ban co tro choi
 void displayMatrixColor(SDL_Renderer* renderer, int color[10][10]);
+//Ham kiem tra trang thai cac o trong ma tran khi nguoi dung xep
+bool checkObject(int seri, int color[10][10], int xObject, int yObject);
 //Ham ve hinh vuong 4 o
 void hinhVuong4(SDL_Renderer* renderer, int x, int y);
 //Ham ve thanh 4 o doc
@@ -263,19 +266,18 @@ void playGame(SDL_Renderer* renderer)
 	//Chay game
 	bool isRunning = true;
 	while (isRunning) {
+		int numberObject = 3;
 		//Random cac hinh
 		srand(time(NULL));
 		int left = rand() % 3 + 1;
-		srand(time(NULL));
 		int mid = rand() % 3 + 1;
-		srand(time(NULL));
 		int right = rand() % 3 + 1;
 		//Hien thi hinh trai
 		displayLeft(renderer, left, 0, 0);
 		//Hien thi hinh giua
-		displayMid(renderer, left, 0, 0);
+		displayMid(renderer, mid, 0, 0);
 		//Hien thi hinh phai
-		displayRight(renderer, left, 0, 0);
+		displayRight(renderer, right, 0, 0);
 		//Nguoi choi chua di chuyen vat the
 		int isObject = 0;
 		//Toa do cu cua chuot
@@ -291,14 +293,15 @@ void playGame(SDL_Renderer* renderer)
 				}
 				case SDL_MOUSEMOTION: {
 					if (isObject == 1) {
-						displayBackground(renderer);
+						/*displayBackground(renderer);
 						displayMatrixColor(renderer, color);
-						//Hien thi hinh trai
+						//Hien thi hinh trai*/
+						
 						displayLeft(renderer, left, playEvent.motion.x - x, playEvent.motion.y - y);
 						//Hien thi hinh giua
-						displayMid(renderer, left, 0, 0);
+						displayMid(renderer, mid, 0, 0);
 						//Hien thi hinh phai
-						displayRight(renderer, left, 0, 0);
+						displayRight(renderer, right, 0, 0);
 					}
 					else if (isObject == 2) {
 						displayBackground(renderer);
@@ -308,7 +311,7 @@ void playGame(SDL_Renderer* renderer)
 						//Hien thi hinh giua
 						displayMid(renderer, mid, playEvent.motion.x - x, playEvent.motion.y - y);
 						//Hien thi hinh phai
-						displayRight(renderer, left, 0, 0);
+						displayRight(renderer, right, 0, 0);
 
 					}
 					else if (isObject == 3) {
@@ -317,7 +320,7 @@ void playGame(SDL_Renderer* renderer)
 						//Hien thi hinh trai
 						displayLeft(renderer, left, 0, 0);
 						//Hien thi hinh giua
-						displayMid(renderer, left, 0, 0);
+						displayMid(renderer, mid, 0, 0);
 						//Hien thi hinh phai
 						displayRight(renderer, right, playEvent.motion.x - x, playEvent.motion.y - y);
 					}
@@ -350,12 +353,33 @@ void playGame(SDL_Renderer* renderer)
 							y = playEvent.motion.y;
 						}
 					}
-					else if ((playEvent.button.button == SDL_BUTTON_LEFT) && (isObject == true)) {
-
+					else if ((playEvent.button.button == SDL_BUTTON_LEFT) && (isObject != 0)) {
+						int xObject; 
+						int yObject;
+						switch (isObject) {
+						case 1: {
+							xObject = 30 + playEvent.motion.x - x;
+							yObject = 500 + playEvent.motion.y - y;
+							checkObject(left, color, xObject, yObject);
+							break;
+						}
+						case 2: {
+							xObject = 145 + playEvent.motion.x - x;
+							yObject = 500 + playEvent.motion.y - y;
+							checkObject(mid, color, xObject, yObject);
+							break;
+						}
+						case 3: {
+							xObject = 250 + playEvent.motion.x - x;
+							yObject = 500 + playEvent.motion.y - y;
+							checkObject(right, color, xObject, yObject);
+							break;
+						}
+						
+						}
 					}
 					break;
 				}
-				
 			}
 		}
 	}
@@ -376,8 +400,8 @@ void displayBackground(SDL_Renderer* renderer) {
 }
 void displayMatrixColor(SDL_Renderer* renderer, int color[10][10])  {
 	//Kich thuoc anh
-	int iSizeX = 29;
-	int iSizeY = 29;
+	int iSizeX = 25;
+	int iSizeY = 25;
 	//Vi tri
 	int x = 30;
 	int y = 160;
@@ -465,7 +489,7 @@ void displayMatrixColor(SDL_Renderer* renderer, int color[10][10])  {
 	}
 }
 void displayLeft(SDL_Renderer* renderer, int left, int dentaX, int dentaY) {
-	int x = 35;
+	int x = 20;
 	int y = 500;
 	switch (left) {
 	case 1:
@@ -509,14 +533,297 @@ void displayRight(SDL_Renderer* renderer, int left, int dentaX, int dentaY) {
 		break;
 	}
 }
+bool checkObject(int seri, int color[10][10], int xObject, int yObject) {
+	bool check = true;
+	xObject = (xObject + 30) / 30;
+	yObject = (yObject + 30) / 30;
+	switch (seri) {
+	case 1: {
+		if (color[xObject][yObject] != 0) {
+			check = false;
+		}
+		if (check == true) {
+			color[xObject][yObject] = 1;
+		}
+		break;
+	}
+	case 2: {
+		for (int i = 0; i <= 1; i ++) {
+			for (int j = 0; j <= 1; j++) {
+				if (color[i + xObject][j + yObject] != 0)
+				{
+					check = false;
+				}
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 1; i++) {
+				for (int j = 0; j <= 1; j++) {
+					color[i + xObject][j + yObject] = 2;
+				}
+			}
+		}
+		break;
+	}
+	case 3: {
+		for (int i = 0; i <= 2; i++) {
+			for (int j = 0; j <= 2; j++) {
+				if (color[i + xObject][j + yObject] != 0)
+				{
+					check = false;
+				}
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 2; i++) {
+				for (int j = 0; j <= 2; j++) {
+					color[i + xObject][j + yObject] = 3;
+				}
+			}
+		}
+		break;
+	}
+	case 4: {
+		for (int i = 0; i <= 1; i++) {
+			if (color[i + xObject][yObject] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 1; i++) {
+				color[i + xObject][yObject] == 4;
+			}
+		}
+		break;
+	}
+	case 5: {
+		for (int i = 0; i <= 2; i++) {
+			if (color[i + xObject][yObject] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 2; i++) {
+				color[i + xObject][yObject] == 5;
+			}
+		}
+		break;
+	}
+	case 6: {
+		for (int i = 0; i <= 3; i++) {
+			if (color[i + xObject][yObject] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 3; i++) {
+				color[i + xObject][yObject] == 6;
+			}
+		}
+		break;
+	}
+	case 7: {
+		for (int i = 0; i <= 1; i++) {
+			if (color[xObject][i + yObject] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 1; i++) {
+				color[xObject][i + yObject] = 7;
+			}
+		}
+		break;
+	}
+	case 8: {
+		for (int i = 0; i <= 2; i++) {
+			if (color[xObject][i + yObject] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 2; i++) {
+				color[xObject][i + yObject] = 8;
+			}
+		}
+		break;
+	}
+	case 9: {
+		for (int i = 0; i <= 3; i++) {
+			if (color[xObject][i + yObject] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 3; i++) {
+				color[xObject][i + yObject] = 1;
+			}
+		}
+		break;
+	}
+	case 10: {
+		if (color[xObject + 1][yObject + 1] != 0) {
+			check = false;
+		}
+		for (int i = 0; i <= 1; i ++) {
+			if (color[xObject][yObject + i] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			color[xObject + 1][yObject + 1] = 2;
+			for (int i = 0; i <= 1; i ++) {
+				color[xObject][yObject + i] = 2;
+			}
+		}
+		break;
+	}
+	case 11: {
+		if (color[xObject + 1][yObject] != 0) {
+			check = false;
+		}
+		for (int i = 0; i <= 1; i ++) {
+			if (color[xObject][yObject + i] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			color[xObject + 1][yObject] = 3;
+			for (int i = 0; i <= 1; i ++) {
+				color[xObject][yObject + i] = 3;
+			}
+		}
+		break;
+	}
+	case 12: {
+		if (color[xObject][yObject] != 0) {
+			check = false;
+		}
+		for (int i = 0; i <= 1; i++) {
+			if (color[xObject + 1][yObject + i] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			color[xObject][yObject] = 4;
+			for (int i = 0; i <= 1; i ++) {
+				color[xObject + 1][yObject + i] = 4;
+			}
+		}
+		break;
+	}
+	case 13: {
+		if (color[xObject][yObject + 1] != 0) {
+			check = false;
+		}
+		for (int i = 0; i <= 1; i++) {
+			if (color[xObject + 1][yObject + i] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			color[xObject][yObject + 1] = 5;
+			for (int i = 0; i <= 1; i++) {
+				color[xObject + 1][yObject + i] = 5;
+			}
+		}
+		break;
+	}
+	case 14: {
+		for (int i = 0; i <= 2; i++) {
+			if (color[xObject][yObject + i] != 0) {
+				check = false;
+			}
+		}
+		for (int i = 1; i <= 2; i++) {
+			if (color[xObject + i][yObject + 2] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 2; i++) {
+				color[xObject][yObject + i] = 6;
+			}
+			for (int i = 1; i <= 2; i++) {
+				color[xObject + i][yObject + 2] = 6;
+			}
+		}
+		break;
+	}
+	case 15: {
+		for (int i = 0; i <= 2; i++) {
+			if (color[xObject][yObject + i] != 0) {
+				check = false;
+			}
+		}
+		for (int i = 1; i <= 2; i++) {
+			if (color[xObject + i][yObject] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 2; i++) {
+				color[xObject][yObject + i] = 7;
+			}
+			for (int i = 1; i <= 2; i++) {
+				color[xObject + i][yObject] = 7;
+			}
+		}
+		break;
+	}
+	case 16: {
+		for (int i = 0; i <= 2; i++) {
+			if (color[xObject + 2][yObject + i] != 0) {
+				check = false;
+			}
+		}
+		for (int i = 0; i <= 1; i++) {
+			if (color[xObject + i][yObject + 2] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 2; i++) {
+				color[xObject + 2][yObject + i] = 8;
+			}
+			for (int i = 0; i <= 1; i++) {
+				color[xObject + i][yObject + 2] = 8;
+			}
+		}
+		break;
+	}
+	case 17: {
+		for (int i = 0; i <= 2; i++) {
+			if (color[xObject + 2][yObject + i] != 0) {
+				check = false;
+			}
+		}
+		for (int i = 0; i <= 1; i++) {
+			if (color[xObject + i][yObject] != 0) {
+				check = false;
+			}
+		}
+		if (check == true) {
+			for (int i = 0; i <= 2; i++) {
+				color[xObject + 2][yObject + i] = 1;
+			}
+			for (int i = 0; i <= 1; i++) {
+				color[xObject + i][yObject] = 1;
+			}
+		}
+		break;
+	}
+	}
+	return check;
+}
 void hinhVuong4(SDL_Renderer* renderer, int x, int y)
 {
 	//Load anh
 	SDL_Texture* picture;
 	picture = loadTexture("picture/03_Green.bmp", renderer);
 	//Kich Thuoc anh
-	int iSizeX = 29;
-	int iSizeY = 29;
+	int iSizeX = 25;
+	int iSizeY = 25;
 	//vong lap ve hinh
 	for (int i = 0; i <= 1; i ++) {
 		for (int j = 0; j <= 1; j ++) {
@@ -530,8 +837,8 @@ void ngang4(SDL_Renderer* renderer, int x, int y) {
 	SDL_Texture* picture;
 	picture = loadTexture("picture/07_Red.bmp", renderer);
 	//Kich Thuoc anh
-	int iSizeX = 29;
-	int iSizeY = 29;
+	int iSizeX = 25;
+	int iSizeY = 25;
 	//vong lap ve hinh
 	for (int i = 0; i <= 3; i++) {
 		renderTexture(picture, renderer, x + i * 30, y, iSizeX, iSizeY);
@@ -543,8 +850,8 @@ void doc4(SDL_Renderer* renderer, int x, int y) {
 	SDL_Texture* picture;
 	picture = loadTexture("picture/04_Orange.bmp", renderer);
 	//Kich Thuoc anh
-	int iSizeX = 29;
-	int iSizeY = 29;
+	int iSizeX = 25;
+	int iSizeY = 25;
 	//vong lap ve hinh
 	for (int i = 0; i <= 3; i++) {
 		renderTexture(picture, renderer, x, y + i * 30, iSizeX, iSizeY);
